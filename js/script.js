@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('form');
 
     const message = {
-        loading: 'Загрузка',
+        loading: 'icons/spinner.svg',
         success: 'Спасибо, мы скоро с Вами свяжемся!',
         failure: 'Упс... Что-то пошло не так'
     };
@@ -191,15 +191,18 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const statusMessage = document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent = message.loading;
-            form.append(statusMessage);
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            form.after(statusMessage);
 
-            const request = new XMLHttpRequest();
-            request.open('post', 'server.php');
+            // const request = new XMLHttpRequest();
+            // request.open('post', 'server.php');
 
-            request.setRequestHeader('Content-type', 'application/json');
+            // request.setRequestHeader();
 
             const formData = new FormData(form);
 
@@ -207,22 +210,47 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.forEach((value, key) => {
                 obj[key] = value;
             });
-
-            const json = JSON.stringify(obj);
-            request.send(json);
-            
-            request.addEventListener('load', () => {
-                if (request.status === 200) {
-                    console.log(request.response);
-                    statusMessage.textContent = message.success;
-                    form.reset();
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000);
-                } else {
-                    statusMessage.textContent = message.failure;
-                }
-            });
+           
+            fetch('server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(obj)
+            }).then(data => data.text())
+            .then(data => {
+                console.log(data);
+                showThanksModal(message.success);
+                
+                statusMessage.remove();
+            }).catch(() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset();
+            })
         });
     }
+
+    function showThanksModal(message) {
+        const modalDialog = document.querySelector('.modal__dialog');
+        modalDialog.classList.add('hide');
+        openModal();
+
+        let modalThanks = document.createElement('div');
+        modalThanks.classList.add('modal__dialog');
+        modalThanks.innerHTML = `
+            <div class="modal__content">
+                <div class="modal__close">&times;</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+        
+        document.querySelector('.modal').append(modalThanks);
+        setTimeout(() => {
+            modalDialog.classList.add('show');
+            modalDialog.classList.remove('hide');
+            modalThanks.remove();
+            closeModal();
+        }, 4000);
+    };
 })
