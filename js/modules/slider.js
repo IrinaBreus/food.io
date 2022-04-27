@@ -1,10 +1,10 @@
-function slider() {
-    const sliders = document.querySelectorAll('.offer__slide'),
-        current = document.querySelector('#current'),
-        arrowPrev = document.querySelector('.offer__slider-prev'),
-        arrowNext = document.querySelector('.offer__slider-next'),
-        slidersWrapper = document.querySelector('.offer__slider-wrapper'),
-        slidersField = document. querySelector('.offer__slider-inner'),
+function slider({slides, current, arrPrev, arrNext, wrapper, field}) {
+    const sliders = document.querySelectorAll(slides),
+        curr = document.querySelector(current),
+        arrowPrev = document.querySelector(arrPrev),
+        arrowNext = document.querySelector(arrNext),
+        slidersWrapper = document.querySelector(wrapper),
+        slidersField = document. querySelector(field),
         width = window.getComputedStyle(slidersWrapper).width;
     let index = 1,
         offset = 0,
@@ -20,7 +20,7 @@ function slider() {
         display: flex;
         transition: all 0.5s`;
     slidersWrapper.style.overflow = 'hidden';
-    current.innerHTML = `0${index}`;
+    curr.innerHTML = `0${index}`;
 
     arrowPrev.addEventListener('click', () => {
         offset == parseInt(width) * (sliders.length - 1) ? 
@@ -70,9 +70,9 @@ function slider() {
 
     function moveSliders(offset, index) {
         slidersField.style.transform = `translateX(-${offset}px)`;
-        current.innerHTML = `0${index}`;
+        curr.innerHTML = `0${index}`;
     }
 
 }
 
-module.exports = slider;
+export default slider;
